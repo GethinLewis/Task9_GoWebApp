@@ -1,0 +1,205 @@
+body {
+    background-color: lightgrey;
+    margin: 0 auto;
+    padding: 0;
+}
+
+h1 {
+    margin: 0;
+    padding: 0;
+}
+
+h2 {
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: goldenrod;
+    border:2px solid black;
+    position: fixed;
+    width: 100%;
+    margin: 0 auto;
+    padding: 50px;
+    z-index: 3;
+    box-sizing: border-box;
+}
+
+nav {
+    background-color: midnightblue;
+    color: gainsboro;
+    position: fixed;
+    height: 40px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 5px;
+    z-index: 2;
+    box-sizing: border-box;
+    top: 141px;
+}
+
+.navlinks {
+    top: 15px;
+    left: 20px;
+    font-size: 20px;
+    padding-left: 10px;
+    font-weight: normal;
+    text-decoration: underline;
+    cursor: pointer;
+    display: inline;
+}
+
+.navtext {
+    display: inline;
+    position: relative;
+    left: 15px;
+}
+
+.loginbox {
+    color: gainsboro;
+    font-size: x-large;
+    background-color: midnightblue;
+    border-radius: 15px;
+    padding: 20px;
+    top: 40%;
+    left: 35%;
+    margin: auto;
+    position: absolute;
+    width: 30%;
+    z-index: 10;
+}
+
+.loginbox form {
+    line-height: 30px;
+}
+
+.loginbox form div {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.loginbox form div input {
+    width: 70%;
+}
+
+a:visited {
+    color: gainsboro;
+}
+
+.displaydiv {
+    background-color: darkgrey;
+    width: 100%;
+    margin: 0 auto;
+    padding: 50px;
+    z-index: 1;
+    position: relative;
+    top: 181px;
+    box-sizing: border-box;
+}
+
+.homepagedisplaydiv {
+        background-color: darkgrey;
+        width: 100%;
+        margin: 0 auto;
+        padding: 50px;
+        z-index: 1;
+        position: relative;
+        top: 181px;
+        box-sizing: border-box;
+}
+
+.homepageposters {
+    position: relative;
+    float: right;
+    right: 50px;
+    top: -35px;
+    height: 200px;
+    width: auto;
+}
+
+.middiv {
+    color: gainsboro;
+    background-color: midnightblue;
+    width: 100%;
+    margin: 0 auto;
+    padding: 10px 50px;
+    z-index: 2;
+    position: fixed;
+    top: 700px;
+    box-sizing: border-box;
+    z-index: 10;
+}
+
+.reviewdivs {
+    box-sizing: border-box;
+    border: 6px ridge;
+    border-radius: 50px;
+    border-color: midnightblue;
+    background-color: gray;
+    margin-bottom: 20px;
+    padding: 5px 40px 10px 40px;
+}
+
+.filmdivs {
+    box-sizing: border-box;
+    border: 6px ridge;
+    border-radius: 50px;
+    border-color: midnightblue;
+    background-color: gray;
+    margin-bottom: 20px;
+    padding: 5px 40px 10px 40px;
+    cursor: pointer;
+}
+
+.filmdivs:hover {
+    border-style: groove;
+    filter: brightness(80%);
+}
+
+.filmdivs * {
+    text-align: center;
+    display: block;
+    margin: 10px auto;
+}
+
+.filmposter {
+    float: right;
+    position: relative;
+    top: -360px;
+    right: 10px;
+}
+
+.filmplot {
+    width: 50%;
+}
+
+#searchbar {
+    display: inline;
+}
+
+#filmdisplay {
+    position: fixed;
+    z-index: 10;
+    height: 43%;
+}
+
+#reviewdisplay {
+    position: relative;
+    top: 748px;
+    padding-bottom: 300px;
+}
+
+#newreview {
+    z-index: 11;
+    color: gainsboro;
+    background-color: midnightblue;
+    position: fixed;
+    width: 100%;
+    bottom: 0px;
+    padding: 10px;
+}
+
+#newpostbody {
+    width: 400px;
+}

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script>
+            // Get userID from url parameters so it can be passed to the next pages 
+            const urlParams = new URLSearchParams(window.location.search)
+            const userID = urlParams.get('userid')
+            
+            /*
+            Search function, gets and displays a list of films that match the input search term
+            This could be improved if omdb supports more complex searches.
+            */
+            async function searchFilms() {
+                let searchterm = document.getElementById('searchbar').value
+                const listDiv = document.getElementById('filmlist')
+
+                // Search default value of star wars if no searchterm is added
+                if (searchterm === "") {
+                    searchterm = "star wars"
+                }
+                
+                // Get film search results
+                const response = await fetch(`http://localhost:8000/getfilms?searchterm=${searchterm}`)
+                const responseBody = await response.json()
+                const filmData = await responseBody.Search
+                // Create divs for each film in the search results
+                let i = 0
+                const searchResults = document.createElement('div')
+                while (i < await filmData.length) {
+                    const filmID = await filmData[i].imdbID;
+                    
+                    // Create div for individual film, hyperlinked to the film page with specific filmID in parameters
+                    const filmDiv = document.createElement('div');
+                    filmDiv.className = "filmdivs"
+                    filmDiv.addEventListener('click', async () => window.location.href = `film.html?userid=${userID}&filmid=${await filmID}`)
+                    
+                    // Create title
+                    const titleText = document.createElement('h4');
+                    titleText.textContent = await filmData[i].Title;
+                    
+                    // Create year text
+                    const yearText = document.createElement('h5')
+                    yearText.textContent = await filmData[i].Year
+
+                    // Create poster image
+                    const posterImg = document.createElement('img')
+                    posterImg.src = await filmData[i].Poster
+                    posterImg.alt = "Poster not found :("
+
+                    // Add film data to div
+                    filmDiv.appendChild(titleText);
+                    filmDiv.appendChild(yearText);
+                    filmDiv.appendChild(posterImg);
+
+                    // Add film Div to the parent
+                    searchResults.appendChild(filmDiv);
+
+                    i ++
+                    
+                }
+
+                // Replace the content of the parent
+                listDiv.replaceChildren(await searchResults);
+            }
+            
+        </script>
+    </head>
+    <body>
+        <header>
+            <h1>BlockBluster Film Reviews</h1>
+            <link rel="stylesheet" href="style.css">
+        </header>
+        
+        <nav>
+            <a id="logout" class="navlinks" href="index.html">Logout</a>
+            <h3 id="home" class="navlinks" onclick="window.location.href = `homepage.html?userid=${userID}`">Home</h3>
+            <h3 class="navtext">
+            Search films:  <input id="searchbar" type="text" placeholder="Search films..."> <input type="button" value="Search" onclick="searchFilms()">
+            </h3>
+        </nav>
+
+        <div id="filmlist" class="displaydiv">
+            <script>
+                searchFilms()
+            </script>
+        </div>
+    </body>
+</html>

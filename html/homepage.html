@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <header>
+            <h1>BlockBluster Film Reviews</h1>
+            <link rel="stylesheet" href="style.css">
+        </header>
+        <script>
+            // Get userID from url parameters so it can be passed to the next pages 
+            const urlParams = new URLSearchParams(window.location.search)
+            const userID = urlParams.get('userid')
+
+            /* 
+            display a list of reviews in order of most recent, an update to this could be to
+            only load a few reviews, loading more as the page is scrolled.
+            */
+            async function recentReviews() {
+                const reviewdisplaydiv = document.getElementById("homepagereviewdisplay")
+
+                // Get review data
+                const reviewResponse = await fetch(`http://localhost:8000/getallreviews`)
+                const reviewData = await reviewResponse.json();
+
+                // Check if there are any reviews present
+                if (Object.keys(await reviewData).length !== 0) {
+                    //Sort reviews by date, newest to oldest
+                    const sortedReviews = await reviewData.sort((a,b)=>{
+                            if (Date.parse(b.posted) - Date.parse(a.posted) > 0) {
+                                return 1;
+                            } else if (Date.parse(b.posted) - Date.parse(a.posted) < 0) {
+                                return -1;
+                            } else {
+                                return 0;
+                            }
+                    });
+                    
+                    /*
+                    Iterate over reviews, creating a new div for each review containing review and film data
+                    Could make reviews clickable to go straight to film page and automatically scroll screen to review
+                    */
+                    let i = 0;
+                    const reviewDivs = document.createElement('div');
+                    while (i < await sortedReviews.length) {
+                        // Create the review div
+                        const reviewDiv = document.createElement('div');
+                        reviewDiv.className = "reviewdivs"
+
+                        // Get the username of the review author
+                        const reviewAuthor = document.createElement('p');
+                        // Check if the user exists
+                        if (await sortedReviews[i].user_id !== null) {
+                            // Get username from server
+                            const usernameResponse = await fetch(`http://localhost:8000/getusername?userid=${await sortedReviews[i].user_id}`)
+                            const userName = (await usernameResponse.json()).username
+                            reviewAuthor.textContent = `User: ${await userName}`;
+                        } else {
+                            reviewAuthor.textContent = `[User Deleted]`
+                        }
+
+                        // Get film data for the film that has been reviewed
+                        const filmResponse = await fetch(`http://localhost:8000/getfilm?filmid=${await sortedReviews[i].film_id}`)
+                        const filmData = await filmResponse.json()
+
+                        // Add film title
+                        const filmTitle = document.createElement('h3');
+                        filmTitle.textContent = await filmData.Title;
+
+                        // Add poster image or display a message if there is no image in the omdb database
+                        const filmPoster = document.createElement('img');
+                        filmPoster.src = await filmData.Poster;
+                        filmPoster.alt = "Poster not found :("
+                        filmPoster.className = "homepageposters"
+
+                        // Add review title
+                        const reviewTitle = document.createElement('h4');
+                        reviewTitle.textContent = await sortedReviews[i].post_title;
+                        reviewTitle.className = "reviewtitle";
+
+                        // Add review star rating
+                        const reviewStars = document.createElement('h4');
+                        // Display star rating, with singular and plural options
+                        if (Math.round(await sortedReviews[i].star_rating) === 1) {
+                            reviewStars.textContent = `${(Math.round(await sortedReviews[i].star_rating))} Star`;
+                        } else {
+                            reviewStars.textContent = `${(Math.round(await sortedReviews[i].star_rating))} Stars`;
+                        }
+                        reviewStars.className = "reviewstars";
+
+                        // Add review body
+                        const reviewBody = document.createElement('p');
+                        reviewBody.textContent = await sortedReviews[i].body;
+
+                        // Add the reveiew date
+                        const reviewDate = document.createElement('p');
+                        // Use Date constructor to convert mySQL datetime to JS date format
+                        DateTime = new Date(await sortedReviews[i].posted);
+                        // Display date and time in a shortened format
+                        reviewDate.textContent = `${await DateTime.getDate()}/${await DateTime.getMonth()}/${await DateTime.getFullYear()} ${await DateTime.getHours()}:${await DateTime.getMinutes()}`;
+
+                        // Append all the data to the review Div
+                        reviewDiv.appendChild(filmTitle);
+                        reviewDiv.appendChild(filmPoster);
+                        reviewDiv.appendChild(reviewTitle);
+                        reviewDiv.appendChild(reviewStars);
+                        reviewDiv.appendChild(reviewBody);
+                        reviewDiv.appendChild(reviewAuthor)
+                        reviewDiv.appendChild(reviewDate);
+
+                        // Append the review Div to the bottom of the reviews list
+                        reviewDivs.appendChild(reviewDiv);
+
+                        i++
+                    };
+
+                    // Replace the content of the parent div with the new review list to prevent duplication
+                    reviewdisplaydiv.replaceChildren(await reviewDivs);
+
+                } else {
+                    // Display "No Reviews" if there are no reviews.
+                    const noReviews = document.createElement('h3')
+                    noReviews.textContent = "No Reviews"
+                    reviewdisplaydiv.replaceChildren(noReviews)
+                }
+            }
+        </script>
+
+        <nav>
+            <a id="logout" class="navlinks" href="index.html">Logout</a>
+            <h4 id="viewfilms" class="navlinks" onclick="window.location.href = `filmsearch.html?userid=${userID}`">View Films</h4>
+        </nav>
+
+        <div class="homepagedisplaydiv">
+            <h2>Welcome to the film review app!</h2>
+            <h3>Recent Reviews:</h3>
+            <div id = "homepagereviewdisplay">
+                <script>
+                    recentReviews()
+                </script>
+            </div>
+        </div>
+
+    </body>
+</html>

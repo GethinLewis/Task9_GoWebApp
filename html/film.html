@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <header>
+            <h1>BlockBluster Film Reviews</h1>
+        </header>
+
+        <script>
+            // Get variables from URL to display the correct film and associate posts with the correct user.
+            const urlParams = new URLSearchParams(window.location.search);
+            const userID = urlParams.get('userid');
+            const filmID = urlParams.get('filmid');
+
+            // Placeholder star count in case film has no reviews
+            let starAvg = "No Reviews"
+
+            // Create star average text element here so it can be updated by multiple function
+            const avgStarRating = document.createElement('h2');
+            avgStarRating.textContent = starAvg;
+            avgStarRating.id = "avgstarrating"
+
+            // Retrieve and display data for the film
+            async function getFilmData() {
+                const displayDiv = document.getElementById('filmdisplay');        
+
+                // Get film data
+                const response = await fetch(`http://localhost:8000/getfilm?filmid=${filmID}`);
+                const filmData = await response.json();
+                
+                // Check if the film div already exists, removing it if it does so that the filmData can be updated
+                if (document.getElementById("filminfo")) {
+                    displayDiv.removeChild(document.getElementById("filminfo"));
+                }
+
+                // Create div for film data
+                const filmDiv = document.createElement("div");
+                filmDiv.id = "filminfo";
+
+                // Create film title element
+                const filmTitle = document.createElement("h2");
+                filmTitle.textContent = await filmData.Title;
+
+                // Release date text element
+                const filmReleased = document.createElement("h3");
+                filmReleased.textContent = "Released: " + await filmData.Released;
+
+                // Film Rating text element
+                const filmRated = document.createElement("h3");
+                filmRated.textContent = "Rated: " + await filmData.Rated;
+
+                // Film runtime text element
+                const filmRuntime = document.createElement("h3");
+                filmRuntime.textContent = "Runtime: " + filmData.Runtime;
+
+                // Film Genre text element
+                const filmGenre = document.createElement("h3");
+                filmGenre.textContent = "Genre: " + await filmData.Genre;
+
+                // Director text element
+                const filmDirector = document.createElement("h3");
+                filmDirector.textContent = "Directed by: " + await filmData.Director;
+
+                // Writer text element
+                const filmWriter = document.createElement("h3");
+                filmWriter.textContent = "Written by: " + await filmData.Writer;
+
+                // Actors text element
+                const filmActors = document.createElement("h3");
+                filmActors.textContent = "Starring: " + await filmData.Actors;
+
+                // Poster image element
+                const posterImg = document.createElement("img")
+                posterImg.src = await filmData.Poster;
+                posterImg.alt = "Poster not found :(";
+                posterImg.className = "filmposter"
+
+                // Plot text element
+                const filmPlot = document.createElement("p");
+                filmPlot.textContent = "Plot: " + await filmData.Plot;
+                filmPlot.className = "filmplot"
+
+                // Add film data to info div
+                filmDiv.appendChild(await filmTitle);
+                filmDiv.appendChild(await avgStarRating);
+                filmDiv.appendChild(await filmReleased);
+                filmDiv.appendChild(await filmGenre);
+                filmDiv.appendChild(await filmActors);
+                filmDiv.appendChild(await filmDirector);
+                filmDiv.appendChild(await filmWriter);                
+                filmDiv.appendChild(await filmRated);
+                filmDiv.appendChild(await filmRuntime);
+                filmDiv.appendChild(await posterImg);
+                filmDiv.appendChild(await filmPlot);
+
+                // add info div to parent
+                displayDiv.appendChild(await filmDiv);
+            }
+
+            // Retrieve and display reviews
+            async function getReviews() {
+                const reviewdisplaydiv = document.getElementById("reviewdisplay")
+
+                // Get review data
+                const response = await fetch(`http://localhost:8000/getreviews?filmid=${filmID}`)
+                const postData = await response.json();
+
+                // Check if there are any reviews for this film
+                if (Object.keys(await postData).length !== 0) {
+                    // Sort reviews by date
+                    const sortedPosts = await postData.sort((a,b)=>{
+                            if (Date.parse(b.posted) - Date.parse(a.posted) > 0) {
+                                return 1;
+                            } else if (Date.parse(b.posted) - Date.parse(a.posted) < 0) {
+                                return -1;
+                            } else {
+                                return 0;
+                            }
+                    });
+                    
+                    // Iterate over reviews, creating a new div for each one
+                    let i = 0; // Counter
+                    let starsTotal = 0; // Cumulative star rating to be averaged later
+                    const reviewDivs = document.createElement('div'); // element to contain review divs
+                    while (i < await sortedPosts.length) {
+                        // Div for this review
+                        const reviewDiv = document.createElement('div');
+                        reviewDiv.className = "reviewdivs"
+
+                        // Get and add the name of the user who created this review to the div
+                        const reviewAuthor = document.createElement('p');
+                        // Check if the user who created this post still exists
+                        if (await sortedPosts[i].user_id !== null) {
+                            // Get username
+                            const usernameResponse = await fetch(`http://localhost:8000/getusername?userid=${await sortedPosts[i].user_id}`)
+                            const userName = (await usernameResponse.json()).username
+                            reviewAuthor.textContent = `User: ${await userName}`;
+                        } else {
+                            reviewAuthor.textContent = `[User Deleted]`
+                        }
+
+                        // Title for the review
+                        const reviewTitle = document.createElement('h4');
+                        reviewTitle.textContent = await sortedPosts[i].post_title
+                        reviewTitle.className = "reviewtitle"
+
+                        // Review Star rating
+                        const reviewStars = document.createElement('h4');
+                        if (Math.round(await sortedPosts[i].star_rating) === 1) {
+                            reviewStars.textContent = `${(Math.round(await sortedPosts[i].star_rating))} Star`;
+                        } else {
+                            reviewStars.textContent = `${(Math.round(await sortedPosts[i].star_rating))} Stars`;
+                        }
+                        reviewStars.className = "reviewstars"
+                        // Update cumulative stars variable
+                        starsTotal += (Number(await sortedPosts[i].star_rating));
+
+                        // Review body element
+                        const reviewBody = document.createElement('p');
+                        reviewBody.textContent = await sortedPosts[i].body;
+
+                        // Review date element
+                        const reviewDate = document.createElement('p');
+                        DateTime = new Date(await sortedPosts[i].posted);
+                        reviewDate.textContent = `${await DateTime.getDate()}/${await DateTime.getMonth()}/${await DateTime.getFullYear()} ${await DateTime.getHours()}:${await DateTime.getMinutes()}`;
+
+                        // Add elements to div
+                        reviewDiv.appendChild(reviewAuthor)
+                        reviewDiv.appendChild(reviewTitle);
+                        reviewDiv.appendChild(reviewStars);
+                        reviewDiv.appendChild(reviewBody);
+                        reviewDiv.appendChild(reviewDate);
+
+                        // Add div to parent
+                        reviewDivs.appendChild(reviewDiv);
+
+                        i++
+                    };
+
+                    // Calculate average star rating and update film info with it
+                    starAvg = starsTotal/(await postData.length);
+                    avgStarRating.textContent = `${starAvg.toFixed(2)} Stars`;
+
+                    reviewdisplaydiv.replaceChildren(await reviewDivs);
+
+                } else {
+                    // Display no reviews message
+                    const noReviews = document.createElement('h3')
+                    noReviews.textContent = "No Reviews"
+                    reviewdisplaydiv.replaceChildren(noReviews)
+                }
+            }
+
+            // POST review content to database and reload the page to update contents
+            function submitReview() {
+                const starRating = document.getElementById("inputstarrating").value;
+                const reviewTitle = document.getElementById("newposttitle").value;
+                const reviewBody = document.getElementById("newpostbody").value;
+
+                // POST review data to server
+                fetch("http://localhost:8000/addreview", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        userid: userID,
+                        filmid: filmID,
+                        starrating: starRating,
+                        reviewtitle: reviewTitle,
+                        reviewbody: reviewBody,
+                    }),
+                    headers: {
+                        "Content-Type": "application/json",
+                    }
+                })
+                // Refresh page
+                window.location.reload()
+            }
+        </script>
+
+        <nav>
+            <a id="logout" class="navlinks" href="index.html">Logout</a></li>
+            <h4 id="home" class="navlinks" onclick="window.location.href = `homepage.html?userid=${userID}`">Home</h4>
+            <h4 id="viewfilms" class="navlinks" onclick="window.location.href = `filmsearch.html?userid=${userID}`">View Films</h4>
+        </nav>
+
+        <div id="filmdisplay" class="displaydiv">
+            <script>
+                getFilmData()
+            </script>
+        </div>
+
+        <div id="reviewheader" class="middiv">
+            <h2>Recent reviews:</h2>
+        </div>
+        <div id="reviewdisplay" class="displaydiv">
+            <script>
+                getReviews()
+            </script>
+        </div>
+
+        <div id="newreview" class="displayDiv">
+            <h1>Add Review:</h1>
+            <form>
+                <label for="inputstarrating">Star Rating: </label>
+                <select name="inputstarrating" id="inputstarrating" required>
+                    <option value="5">5</option>
+                    <option value="4">4</option>
+                    <option value="3">3</option>
+                    <option value="2">2</option>
+                    <option value="1">1</option>
+                </select>
+                <label for="newposttitle">Summary: </label>
+                <input type="text" name="newposttitle" id="newposttitle" required maxlength="50">
+
+                <label for="newpostbody">Review: </label>
+                <input type="text" name="newpostbody" id="newpostbody" required maxlength="280">
+
+                <input type="button" name="submitreview" id="submitreview" value="Submit" onclick="submitReview()">
+            </form>
+        </div>
+    </body>
+</html>
