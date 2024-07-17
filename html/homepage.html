@@ -6,9 +6,6 @@
             <link rel="stylesheet" href="style.css">
         </header>
         <script>
-            // Get userID from url parameters so it can be passed to the next pages 
-            const urlParams = new URLSearchParams(window.location.search)
-            const userID = urlParams.get('userid')
 
             /* 
             display a list of reviews in order of most recent, an update to this could be to
@@ -125,8 +122,8 @@
         </script>
 
         <nav>
-            <a id="logout" class="navlinks" href="index.html">Logout</a>
-            <h4 id="viewfilms" class="navlinks" onclick="window.location.href = `filmsearch.html?userid=${userID}`">View Films</h4>
+            <h4 id="logout" class="navlinks" onclick="sessionStorage.clear(); window.location.href = `index.html`">Logout</h4>
+            <h4 id="viewfilms" class="navlinks" onclick="window.location.href = `filmsearch.html`">View Films</h4>
         </nav>
 
         <div class="homepagedisplaydiv">

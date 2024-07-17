@@ -27,7 +27,11 @@ func init() {
 
 func main() {
 	r := gin.Default()
-	r.Use(cors.New(cors.Config{AllowAllOrigins: true}))
+	r.Use(cors.New(cors.Config{
+		AllowCredentials: true,
+		AllowOrigins:     []string{"http://gethintest.enterpriselocal.com:8080", "http://localhost"},
+		AllowHeaders:     []string{"Authorization", "content-type"},
+	}))
 
 	r.POST("/adduser", addUser)
 
@@ -49,7 +53,8 @@ func main() {
 
 	r.GET("getreviews", getReviews)
 
-	err := r.Run("localhost:8000")
+	routeraddress := fmt.Sprintf("localhost:%v", os.Getenv("PORT"))
+	err := r.Run(routeraddress)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -81,7 +86,6 @@ func addUser(c *gin.Context) {
 }
 
 func addReview(c *gin.Context) {
-
 	requestBody, err := io.ReadAll(c.Request.Body)
 	if err != nil {
 		log.Fatal(err)
@@ -98,10 +102,10 @@ func addReview(c *gin.Context) {
 	review := Review{}
 	json.Unmarshal(requestBody, &review)
 
-	intUserid, err := strconv.Atoi(review.Userid)
-	if err != nil {
-		log.Fatal(err)
-	}
+	userid, _ := c.Get("userID")
+	fmt.Println(userid)
+
+	intUserid := userid.(uint)
 
 	floatStarrating, err := strconv.ParseFloat(review.Starrating, 32)
 	if err != nil {
@@ -148,7 +152,7 @@ func authenticateLogin(c *gin.Context) {
 	// Compate sent in password with saved password
 	if (user == models.User{}) {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid email or password",
+			"error": "Invalid username or password",
 		})
 		return
 	} else {
@@ -162,7 +166,6 @@ func authenticateLogin(c *gin.Context) {
 
 			// Sign and get the encoded token as a string
 			tokenString, err := token.SignedString([]byte(os.Getenv("JWTKEY")))
-			fmt.Println(tokenString)
 			if err != nil {
 				fmt.Println(err)
 				c.JSON(http.StatusBadRequest, gin.H{
@@ -171,18 +174,9 @@ func authenticateLogin(c *gin.Context) {
 
 				return
 			}
+
 			// Send token back
-			c.SetSameSite(http.SameSiteNoneMode)
-			c.SetCookie(
-				"123",       // name
-				"123",       // value
-				2000000000,  // maxAge in seconds (1 year)
-				"/",         // path
-				"localhost", // domain
-				false,       // secure
-				true,        // httpOnly
-			) // Passwords match, return success response with user details
-			c.String(200, "@£")
+			c.String(http.StatusOK, tokenString)
 
 		} else {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -260,7 +254,6 @@ func getFilms(c *gin.Context) {
 
 	search := FilmSearch{}
 	json.Unmarshal(filmData, &search)
-	fmt.Println(search)
 	c.JSON(http.StatusOK, search)
 }
 

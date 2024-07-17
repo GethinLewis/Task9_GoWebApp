@@ -2,10 +2,6 @@
 <html>
     <head>
         <script>
-            // Get userID from url parameters so it can be passed to the next pages 
-            const urlParams = new URLSearchParams(window.location.search)
-            const userID = urlParams.get('userid')
-            
             /*
             Search function, gets and displays a list of films that match the input search term
             This could be improved if omdb supports more complex searches.
@@ -32,7 +28,7 @@
                     // Create div for individual film, hyperlinked to the film page with specific filmID in parameters
                     const filmDiv = document.createElement('div');
                     filmDiv.className = "filmdivs"
-                    filmDiv.addEventListener('click', async () => window.location.href = `film.html?userid=${userID}&filmid=${await filmID}`)
+                    filmDiv.addEventListener('click', async () => window.location.href = `film.html?&filmid=${await filmID}`)
                     
                     // Create title
                     const titleText = document.createElement('h4');
@@ -72,8 +68,8 @@
         </header>
         
         <nav>
-            <a id="logout" class="navlinks" href="index.html">Logout</a>
-            <h3 id="home" class="navlinks" onclick="window.location.href = `homepage.html?userid=${userID}`">Home</h3>
+            <h4 id="logout" class="navlinks" onclick="sessionStorage.clear(); window.location.href = `index.html`">Logout</h4>
+            <h3 id="home" class="navlinks" onclick="window.location.href = `homepage.html`">Home</h3>
             <h3 class="navtext">
             Search films:  <input id="searchbar" type="text" placeholder="Search films..."> <input type="button" value="Search" onclick="searchFilms()">
             </h3>

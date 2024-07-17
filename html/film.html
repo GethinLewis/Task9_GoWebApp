@@ -11,7 +11,6 @@
         <script>
             // Get variables from URL to display the correct film and associate posts with the correct user.
             const urlParams = new URLSearchParams(window.location.search);
-            const userID = urlParams.get('userid');
             const filmID = urlParams.get('filmid');
 
             // Placeholder star count in case film has no reviews
@@ -198,20 +197,23 @@
                 const starRating = document.getElementById("inputstarrating").value;
                 const reviewTitle = document.getElementById("newposttitle").value;
                 const reviewBody = document.getElementById("newpostbody").value;
-
+                console.log(sessionStorage.getItem("authorization"))
                 // POST review data to server
                 fetch("http://localhost:8000/addreview", {
                     method: "POST",
+                    withCredentials: true,
+                    credentials: "include",
+                    headers: {
+                        'Authorization': sessionStorage.getItem("authorization"),
+                        "Content-Type": "application/json",
+                    },
                     body: JSON.stringify({
-                        userid: userID,
+                        userid: null,
                         filmid: filmID,
                         starrating: starRating,
                         reviewtitle: reviewTitle,
                         reviewbody: reviewBody,
                     }),
-                    headers: {
-                        "Content-Type": "application/json",
-                    }
                 })
                 // Refresh page
                 window.location.reload()
@@ -219,9 +221,9 @@
         </script>
 
         <nav>
-            <a id="logout" class="navlinks" href="index.html">Logout</a></li>
-            <h4 id="home" class="navlinks" onclick="window.location.href = `homepage.html?userid=${userID}`">Home</h4>
-            <h4 id="viewfilms" class="navlinks" onclick="window.location.href = `filmsearch.html?userid=${userID}`">View Films</h4>
+            <h4 id="logout" class="navlinks" onclick="sessionStorage.clear(); window.location.href = `index.html`">Logout</h4>
+            <h4 id="home" class="navlinks" onclick="window.location.href = `homepage.html`">Home</h4>
+            <h4 id="viewfilms" class="navlinks" onclick="window.location.href = `filmsearch.html`">View Films</h4>
         </nav>
 
         <div id="filmdisplay" class="displaydiv">

@@ -8,19 +8,30 @@
             async function authenticateUser() {
                 const username = document.getElementById("username").value;
                 const password = document.getElementById("password").value;
-
+                var responseBody = null
                 // Send login request to server
                 const response = await fetch(`http://localhost:8000/login?username=${username}&password=${password}`);
-                
-                console.log(document.cookie)
-                // check that authorization cookie has been set indicating valid login
-/*                 if (document.cookie) { 
-                    document.getElementById("prompt").textContent = "Invalid username or password, please try again"
-                } else if (userdata.LoginPass === true){
+                if (!response.ok) {
+                    responseBody = await response.json()
+                    if (responseBody.error === 'Invalid username or password') {
+                        document.getElementById("prompt").textContent = "Invalid username or password, please try again";
+                        return;
+                    } else {
+                        throw new Error(`Response status: ${response.status}`);
+                        return;
+                    }
+                } else {
+                    console.log()
+                    // Save JWT in session storage
+                    sessionStorage.setItem("authorization", await response.text())
+
                     // Go to homepage with userid passed as a url parameter             
-                    window.location.href = `homepage.html?userid=${userdata.user_id}`;
-                }*/
-            }
+                    window.location.href = `homepage.html`;
+                }
+
+
+
+                }
         </script>
     </head>
     <body>

@@ -14,15 +14,13 @@ import (
 )
 
 func RequireAuth(c *gin.Context) {
+	fmt.Println("in auth")
 	// Get the cookie from the request
-	tokenString, err := c.Cookie("Authorization")
-
-	if err != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
-	}
+	tokenString := c.Request.Header["Authorization"]
+	fmt.Println(tokenString)
 
 	// Decode and validate the cookie
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(tokenString[0], func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
@@ -33,7 +31,7 @@ func RequireAuth(c *gin.Context) {
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok {
-		// Check cookie exp
+		// Check token expiry
 		if float64(time.Now().Unix()) > claims["exp"].(float64) {
 			c.AbortWithStatus(http.StatusUnauthorized)
 		}
@@ -46,7 +44,7 @@ func RequireAuth(c *gin.Context) {
 		}
 
 		// Attach to req
-		c.Set("user", user)
+		c.Set("userID", user.User_id)
 
 		// Continue
 		c.Next()
