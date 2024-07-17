@@ -122,7 +122,7 @@
         </script>
 
         <nav>
-            <h4 id="logout" class="navlinks" onclick="sessionStorage.clear(); window.location.href = `index.html`">Logout</h4>
+            <h4 id="logout" class="navlinks" onclick="sessionStorage.clear(); window.location.href = `login.html`">Logout</h4>
             <h4 id="viewfilms" class="navlinks" onclick="window.location.href = `filmsearch.html`">View Films</h4>
         </nav>
 
@@ -135,6 +135,11 @@
                 </script>
             </div>
         </div>
+        <script>
+            if (sessionStorage.getItem("Authorization") == null) {
+                document.getElementById("logout").textContent = "Login"
+            }
+        </script>
 
     </body>
 </html>

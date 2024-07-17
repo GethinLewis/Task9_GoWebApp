@@ -27,7 +27,7 @@
                         }
                     })
                     // Go back to login page when user has been added
-                    .then(window.location.href = 'index.html')
+                    .then(window.location.href = 'login.html')
 
                 } else {
                     document.getElementById("prompt").textContent = "Username is already taken, try again"
@@ -49,7 +49,7 @@
             
             <div>
             <input id="loginSubmit" type="button" value="Submit" onclick="newUser()">
-            <input id="back" type="button" value="Back" onclick="window.location.href = 'index.html'">
+            <input id="back" type="button" value="Back" onclick="window.location.href = 'login.html'">
             </div>
         </form>
     </body>

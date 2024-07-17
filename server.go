@@ -17,6 +17,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -60,8 +61,25 @@ func main() {
 	}
 }
 
-func addUser(c *gin.Context) {
+func hashPassword(password string) string {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 10)
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	return string(bytes)
+}
+
+func checkPasswordHash(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	if err != nil {
+		log.Fatal(err)
+	}
+	return err == nil
+}
+
+func addUser(c *gin.Context) {
+	// Get user data from request body
 	requestBody, err := io.ReadAll(c.Request.Body)
 	if err != nil {
 		log.Fatal(err)
@@ -73,10 +91,16 @@ func addUser(c *gin.Context) {
 	}
 
 	login := Login{}
+
+	// Put json request body into login struct
 	json.Unmarshal(requestBody, &login)
+
+	// Hash password
+	login.Password = hashPassword(login.Password)
 
 	user := models.User{Username: login.Username, Password: login.Password}
 
+	// Add User details to database
 	result := initializers.DB.Create(&user)
 	if result.Error != nil {
 		log.Fatal(result.Error)
@@ -157,7 +181,7 @@ func authenticateLogin(c *gin.Context) {
 		return
 	} else {
 
-		if user.Password == input_password && !user.Deleted {
+		if checkPasswordHash(input_password, user.Password) && !user.Deleted {
 			// Generate JWT token
 			token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 				"sub": user.User_id,

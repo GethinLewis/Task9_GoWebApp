@@ -68,7 +68,7 @@
         </header>
         
         <nav>
-            <h4 id="logout" class="navlinks" onclick="sessionStorage.clear(); window.location.href = `index.html`">Logout</h4>
+            <h4 id="logout" class="navlinks" onclick="sessionStorage.clear(); window.location.href = `login.html`">Logout</h4>
             <h3 id="home" class="navlinks" onclick="window.location.href = `homepage.html`">Home</h3>
             <h3 class="navtext">
             Search films:  <input id="searchbar" type="text" placeholder="Search films..."> <input type="button" value="Search" onclick="searchFilms()">
@@ -80,5 +80,10 @@
                 searchFilms()
             </script>
         </div>
+        <script>
+            if (sessionStorage.getItem("Authorization") == null) {
+                document.getElementById("logout").textContent = "Login"
+            }
+        </script>
     </body>
 </html>
