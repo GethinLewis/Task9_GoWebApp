@@ -23,7 +23,7 @@ jobs:
     - name: lint go file 
       uses: Jerome1337/golint-action@v1.0.2
       with:
-        golint-path: './src/...'
+        golint-path: './...'
 
     - name: Build
       run: go build -v ./...
